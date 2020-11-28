@@ -6,12 +6,9 @@ library(DESeq2)
 library(PoissonSeq)
 library(ggplot2)
 library(RColorBrewer)
-library(pheatmap)
 library(ggrepel)
 library(clusterProfiler)
-library(DEGreport)
 library(DOSE)
-library(pathview)
 library(tidyverse)
 library(dplyr)
 library(PROPER)
@@ -166,6 +163,7 @@ TMM_R1 = normalization_methods$TMM(GSE40562_eset)
 RPKM_R1 = normalization_methods$RPKM(GSE40562_eset)
 Raw_R1 = GSE40562_eset
 
+GSE98582_eset[is.na(GSE98582_eset)] = 0
 analysis_GSE98582 = mark(
     DESeq2_R2 = normalization_methods$DESeq2(GSE98582_eset),
     PoissonSeq_R2 = normalization_methods$PoissonSeq(GSE98582_eset,get_subject_list(GSE98582$characteristics_ch1.2,"Control")),
