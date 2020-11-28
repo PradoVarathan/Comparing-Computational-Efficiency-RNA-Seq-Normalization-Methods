@@ -203,12 +203,49 @@ PoissonSeq_R2 = normalization_methods$PoissonSeq(GSE98582_eset,get_subject_list(
 TMM_R2 = normalization_methods$TMM(GSE98582_eset)
 RPKM_R2 = normalization_methods$RPKM(GSE98582_eset)
 UQ_R2 = normalization_methods$UQ(GSE98582_eset)
-Raw_R1 = GSE98582_eset
+Raw_R2 = GSE98582_eset
 
 # Comparing the post normalization count matrixes
+# Boxplots
+jpeg("GSE40562_BoxPlot.jpeg")
+par(mfrow=c(2,3))
+boxplot(log2(DESeq2_R1))
+boxplot(log2(PoissonSeq_R1))
+boxplot(log2(TMM_R1))
+boxplot(log2(RPKM_R1))
+boxplot(log2(UQ_R1))
+boxplot(log2(Raw_R1))
+dev.off()
 
+jpeg("GSE98582_BoxPlot.jpeg")
+par(mfrow=c(2,3))
+boxplot(log2(DESeq2_R2))
+boxplot(log2(PoissonSeq_R2))
+boxplot(log2(TMM_R2))
+boxplot(log2(RPKM_R2))
+boxplot(log2(UQ_R2))
+boxplot(log2(Raw_R2))
+dev.off()
 
-# 2.Heatmap of genes - 2 main dataset
-# 3.
+# Pheatmaps
+jpeg("GSE40562_PheatMaps.jpeg")
+par(mfrow=c(2,3))
+pheatmap(log2(DESeq2_R1))
+pheatmap(log2(PoissonSeq_R1))
+pheatmap(log2(TMM_R1))
+pheatmap(log2(RPKM_R1))
+pheatmap(log2(UQ_R1))
+pheatmap(log2(Raw_R1))
+dev.off()
+
+jpeg("GSE98582_PheatMap.jpeg")
+par(mfrow=c(2,3))
+pheatmap(log2(DESeq2_R2))
+pheatmap(log2(PoissonSeq_R2))
+pheatmap(log2(TMM_R2))
+pheatmap(log2(RPKM_R2))
+pheatmap(log2(UQ_R2))
+pheatmap(log2(Raw_R2))
+dev.off()
 
 
