@@ -1,6 +1,6 @@
 
 # Importing packages required for all analysis
-
+library(GEOquery)
 library(NOISeq)
 library(DESeq2)
 library(PoissonSeq)
@@ -10,15 +10,12 @@ library(pheatmap)
 library(ggrepel)
 library(clusterProfiler)
 library(DEGreport)
-library(org.Hs.eg.db)
 library(DOSE)
 library(pathview)
 library(tidyverse)
-library(EnsDb.Hsapiens.v86)
-library(AnnotationHub)
-library(ensembldb)
 library(dplyr)
 library(PROPER)
+library(bench)
 
 # Preparing the GEO data for analysis - Real Data
 GSE40562 = getGEO("GSE40562")[[1]]
@@ -37,6 +34,8 @@ normalization_methods$DESeq2 = function(expression_set){
     temp = expression_set
     psuedo_ref_sample = col_multiply(expression_set)
     normalization_factor_matrix = sweep(expression_set,FUN="/",MARGIN=1,STATS=psuedo_ref_sample)
+    normalization_factor_matrix[is.na(normalization_factor_matrix)] = 1
+    normalization_factor_matrix[normalization_factor_matrix == Inf] = 0
     medians_list = c()
     for (col in 1:ncol(normalization_factor_matrix)){
         medians_list = c(medians_list, median(normalization_factor_matrix[,col]))
@@ -48,7 +47,7 @@ normalization_methods$DESeq2 = function(expression_set){
 col_multiply = function(eset){
     result = matrix(data = 1,ncol=1,nrow=nrow(eset))
     for (column in 1:ncol(eset)){
-        result = result*eset[:,column]
+        result = result*eset[,column]
     }
     result = result^(1/ncol(eset))
     return(result)
@@ -79,12 +78,91 @@ simulation_datasets = list('data1' = simRNAseq(simulation_options$sim1_opt,n1=4,
                            'data8' = simRNAseq(simulation_options$sim2_opt,n1=450,n2=100),
                            'data9' = simRNAseq(simulation_options$sim3_opt,n1=450,n2=100))
 
-# QC
-# 1.Memory
-# 2.Time
-# 3.PCA
 
-# 1.Memory graph and Time graph
+# Running simulations on all three with benchmarking
+
+analysis_DESeq2 = bench(
+
+    DESeq2_data1 = normalization_methods$DESeq2(simulation_datasets$data1$counts),
+    DESeq2_data2 = normalization_methods$DESeq2(simulation_datasets$data2$counts),
+    DESeq2_data3 = normalization_methods$DESeq2(simulation_datasets$data3$counts),
+    DESeq2_data4 = normalization_methods$DESeq2(simulation_datasets$data4$counts),
+    DESeq2_data5 = normalization_methods$DESeq2(simulation_datasets$data5$counts),
+    DESeq2_data6 = normalization_methods$DESeq2(simulation_datasets$data6$counts),
+    DESeq2_data7 = normalization_methods$DESeq2(simulation_datasets$data7$counts),
+    DESeq2_data8 = normalization_methods$DESeq2(simulation_datasets$data8$counts),
+    DESeq2_data9 = normalization_methods$DESeq2(simulation_datasets$data9$counts),check = FALSE)
+jpeg("DESeq2_Autoplot.jpeg")
+DESeq2_plt = autoplot(analysis_DESeq2)
+dev.off()
+write.table(analysis_DESeq2,"DESeq2_Memory_Time_Analysis.txt",quote=F,row.names=F)
+
+analysis_PoissonSeq = bench(
+
+    PoissonSeq_data1 = normalization_methods$PoissonSeq(simulation_datasets$data1$counts,simulation_datasets$data1$designs),
+    PoissonSeq_data2 = normalization_methods$PoissonSeq(simulation_datasets$data2$counts,simulation_datasets$data2$designs),
+    PoissonSeq_data3 = normalization_methods$PoissonSeq(simulation_datasets$data3$counts,simulation_datasets$data3$designs),
+    PoissonSeq_data4 = normalization_methods$PoissonSeq(simulation_datasets$data4$counts,simulation_datasets$data4$designs),
+    PoissonSeq_data5 = normalization_methods$PoissonSeq(simulation_datasets$data5$counts,simulation_datasets$data5$designs),
+    PoissonSeq_data6 = normalization_methods$PoissonSeq(simulation_datasets$data6$counts,simulation_datasets$data6$designs),
+    PoissonSeq_data7 = normalization_methods$PoissonSeq(simulation_datasets$data7$counts,simulation_datasets$data7$designs),
+    PoissonSeq_data8 = normalization_methods$PoissonSeq(simulation_datasets$data8$counts,simulation_datasets$data8$designs),
+    PoissonSeq_data9 = normalization_methods$PoissonSeq(simulation_datasets$data9$counts,simulation_datasets$data9$designs),check = FALSE)
+jpeg("PoissonSeq_Autoplot.jpeg")
+PoissonSeq_plt = autoplot(analysis_PoissonSeq)
+dev.off()
+write.table(analysis_PoissonSeq,"PoissonSeq_Memory_Time_Analysis.txt",quote=F,row.names=F)
+
+analysis_TMM = bench(
+
+    TMM_data1 = normalization_methods$TMM(simulation_datasets$data1$counts),
+    TMM_data2 = normalization_methods$TMM(simulation_datasets$data2$counts),
+    TMM_data3 = normalization_methods$TMM(simulation_datasets$data3$counts),
+    TMM_data4 = normalization_methods$TMM(simulation_datasets$data4$counts),
+    TMM_data5 = normalization_methods$TMM(simulation_datasets$data5$counts),
+    TMM_data6 = normalization_methods$TMM(simulation_datasets$data6$counts),
+    TMM_data7 = normalization_methods$TMM(simulation_datasets$data7$counts),
+    TMM_data8 = normalization_methods$TMM(simulation_datasets$data8$counts),
+    TMM_data9 = normalization_methods$TMM(simulation_datasets$data9$counts),check = FALSE)
+jpeg("TMM_Autoplot.jpeg")
+TMM_plt = autoplot(analysis_TMM)
+dev.off()
+write.table(analysis_TMM,"TMM_Memory_Time_Analysis.txt",quote=F,row.names=F)
+
+
+analysis_RPKM = bench(
+
+    RPKM_data1 = normalization_methods$RPKM(simulation_datasets$data1$counts),
+    RPKM_data2 = normalization_methods$RPKM(simulation_datasets$data2$counts),
+    RPKM_data3 = normalization_methods$RPKM(simulation_datasets$data3$counts),
+    RPKM_data4 = normalization_methods$RPKM(simulation_datasets$data4$counts),
+    RPKM_data5 = normalization_methods$RPKM(simulation_datasets$data5$counts),
+    RPKM_data6 = normalization_methods$RPKM(simulation_datasets$data6$counts),
+    RPKM_data7 = normalization_methods$RPKM(simulation_datasets$data7$counts),
+    RPKM_data8 = normalization_methods$RPKM(simulation_datasets$data8$counts),
+    RPKM_data9 = normalization_methods$RPKM(simulation_datasets$data9$counts),check = FALSE)
+jpeg("RPKM_Autoplot.jpeg")
+RPKM_plt = autoplot(analysis_RPKM)
+dev.off()
+write.table(analysis_RPKM,"RPKM_Memory_Time_Analysis.txt",quote=F,row.names=F)
+
+analysis_UQ = bench(
+    UQ_data1 = normalization_methods$UQ(simulation_datasets$data1$counts),
+    UQ_data2 = normalization_methods$UQ(simulation_datasets$data2$counts),
+    UQ_data3 = normalization_methods$UQ(simulation_datasets$data3$counts),
+    UQ_data4 = normalization_methods$UQ(simulation_datasets$data4$counts),
+    UQ_data5 = normalization_methods$UQ(simulation_datasets$data5$counts),
+    UQ_data6 = normalization_methods$UQ(simulation_datasets$data6$counts),
+    UQ_data7 = normalization_methods$UQ(simulation_datasets$data7$counts),
+    UQ_data8 = normalization_methods$UQ(simulation_datasets$data8$counts),
+    UQ_data9 = normalization_methods$UQ(simulation_datasets$data9$counts),check = FALSE)
+jpeg("UQ_Autoplot.jpeg")
+UQ_plt = autoplot(analysis_UQ)
+dev.off()
+write.table(analysis_UQ,"UQ_Memory_Time_Analysis.txt",quote=F,row.names=F)
+
+
+
 # 2.Heatmap of genes - 2 main dataset
 # 3.
 
