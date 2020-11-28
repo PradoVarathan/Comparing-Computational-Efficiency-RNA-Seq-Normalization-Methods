@@ -53,6 +53,12 @@ col_multiply = function(eset){
     return(result)
 }
 
+get_subject_list = function(expression_data,key,columname){
+    list = as.character(expression_data$columname)
+    subjects = grepl(key,list)
+    return(as.integer(subjects))
+}
+
 normalization_methods$PoissonSeq = function(expression_set,subject_list){
     data_set = list(n=expression_set,y=subject_list)
     temp = expression_set
@@ -161,7 +167,12 @@ UQ_plt = autoplot(analysis_UQ)
 dev.off()
 write.table(analysis_UQ,"UQ_Memory_Time_Analysis.txt",quote=F,row.names=F)
 
+# Running the real data
 
+analysis_GSE40562 = bench(
+    DESeq2_R1 = normalization_methods$DESeq2(GSE40562_eset),
+    PoissonSeq_R1 = normalization_methods$PoissonSeq(GSE40562_eset,)
+)
 
 # 2.Heatmap of genes - 2 main dataset
 # 3.
