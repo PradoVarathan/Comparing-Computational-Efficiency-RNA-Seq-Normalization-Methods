@@ -53,8 +53,8 @@ col_multiply = function(eset){
     return(result)
 }
 
-get_subject_list = function(expression_data,key,columname){
-    list = as.character(expression_data$columname)
+get_subject_list = function(expression_data,key){
+    list = as.character(expression_data)
     subjects = grepl(key,list)
     return(as.integer(subjects))
 }
@@ -99,7 +99,7 @@ analysis_DESeq2 = bench(
     DESeq2_data8 = normalization_methods$DESeq2(simulation_datasets$data8$counts),
     DESeq2_data9 = normalization_methods$DESeq2(simulation_datasets$data9$counts),check = FALSE)
 jpeg("DESeq2_Autoplot.jpeg")
-DESeq2_plt = autoplot(analysis_DESeq2)
+autoplot(analysis_DESeq2)
 dev.off()
 write.table(analysis_DESeq2,"DESeq2_Memory_Time_Analysis.txt",quote=F,row.names=F)
 
@@ -115,7 +115,7 @@ analysis_PoissonSeq = bench(
     PoissonSeq_data8 = normalization_methods$PoissonSeq(simulation_datasets$data8$counts,simulation_datasets$data8$designs),
     PoissonSeq_data9 = normalization_methods$PoissonSeq(simulation_datasets$data9$counts,simulation_datasets$data9$designs),check = FALSE)
 jpeg("PoissonSeq_Autoplot.jpeg")
-PoissonSeq_plt = autoplot(analysis_PoissonSeq)
+autoplot(analysis_PoissonSeq)
 dev.off()
 write.table(analysis_PoissonSeq,"PoissonSeq_Memory_Time_Analysis.txt",quote=F,row.names=F)
 
@@ -131,7 +131,7 @@ analysis_TMM = bench(
     TMM_data8 = normalization_methods$TMM(simulation_datasets$data8$counts),
     TMM_data9 = normalization_methods$TMM(simulation_datasets$data9$counts),check = FALSE)
 jpeg("TMM_Autoplot.jpeg")
-TMM_plt = autoplot(analysis_TMM)
+autoplot(analysis_TMM)
 dev.off()
 write.table(analysis_TMM,"TMM_Memory_Time_Analysis.txt",quote=F,row.names=F)
 
@@ -148,7 +148,7 @@ analysis_RPKM = bench(
     RPKM_data8 = normalization_methods$RPKM(simulation_datasets$data8$counts),
     RPKM_data9 = normalization_methods$RPKM(simulation_datasets$data9$counts),check = FALSE)
 jpeg("RPKM_Autoplot.jpeg")
-RPKM_plt = autoplot(analysis_RPKM)
+autoplot(analysis_RPKM)
 dev.off()
 write.table(analysis_RPKM,"RPKM_Memory_Time_Analysis.txt",quote=F,row.names=F)
 
@@ -163,7 +163,7 @@ analysis_UQ = bench(
     UQ_data8 = normalization_methods$UQ(simulation_datasets$data8$counts),
     UQ_data9 = normalization_methods$UQ(simulation_datasets$data9$counts),check = FALSE)
 jpeg("UQ_Autoplot.jpeg")
-UQ_plt = autoplot(analysis_UQ)
+autoplot(analysis_UQ)
 dev.off()
 write.table(analysis_UQ,"UQ_Memory_Time_Analysis.txt",quote=F,row.names=F)
 
@@ -171,8 +171,42 @@ write.table(analysis_UQ,"UQ_Memory_Time_Analysis.txt",quote=F,row.names=F)
 
 analysis_GSE40562 = bench(
     DESeq2_R1 = normalization_methods$DESeq2(GSE40562_eset),
-    PoissonSeq_R1 = normalization_methods$PoissonSeq(GSE40562_eset,)
+    PoissonSeq_R1 = normalization_methods$PoissonSeq(GSE40562_eset,get_subject_list(GSE40562$source_name_ch1,"normal")),
+    TMM_R1 = normalization_methods$TMM(GSE40562_eset),
+    RPKM_R1 = normalization_methods$RPKM(GSE40562_eset),
+    UQ_R1 = normalization_methods$UQ(GSE40562_eset)
 )
+jpeg("GSE40562.jpeg")
+autoplot(analysis_GSE40562)
+dev.off()
+write.table(analysis_GSE40562,"GSE40562_Memory_Time_Analysis.txt",quote=F,row.names=F)
+DESeq2_R1 = normalization_methods$DESeq2(GSE40562_eset)
+PoissonSeq_R1 = normalization_methods$PoissonSeq(GSE40562_eset,get_subject_list(GSE40562$source_name_ch1,"normal"))
+TMM_R1 = normalization_methods$TMM(GSE40562_eset)
+RPKM_R1 = normalization_methods$RPKM(GSE40562_eset)
+UQ_R1 = normalization_methods$UQ(GSE40562_eset)
+Raw_R1 = GSE40562_eset
+
+analysis_GSE98582 = bench(
+    DESeq2_R2 = normalization_methods$DESeq2(GSE98582_eset),
+    PoissonSeq_R2 = normalization_methods$PoissonSeq(GSE98582_eset,get_subject_list(GSE98582$characteristics_ch1.2,"Control")),
+    TMM_R2 = normalization_methods$TMM(GSE98582_eset),
+    RPKM_R2 = normalization_methods$RPKM(GSE98582_eset),
+    UQ_R2 = normalization_methods$UQ(GSE98582_eset)
+)
+jpeg("GSE98582.jpeg")
+autoplot(analysis_GSE98582)
+dev.off()
+write.table(analysis_GSE98582,"GSE98582_Memory_Time_Analysis.txt",quote=F,row.names=F)
+DESeq2_R2 = normalization_methods$DESeq2(GSE98582_eset)
+PoissonSeq_R2 = normalization_methods$PoissonSeq(GSE98582_eset,get_subject_list(GSE98582$characteristics_ch1.2,"Control"))
+TMM_R2 = normalization_methods$TMM(GSE98582_eset)
+RPKM_R2 = normalization_methods$RPKM(GSE98582_eset)
+UQ_R2 = normalization_methods$UQ(GSE98582_eset)
+Raw_R1 = GSE98582_eset
+
+# Comparing the post normalization count matrixes
+
 
 # 2.Heatmap of genes - 2 main dataset
 # 3.
