@@ -155,7 +155,7 @@ analysis_GSE40562 = mark(
     DESeq2_R1 = normalization_methods$DESeq2(GSE40562_eset),
     PoissonSeq_R1 = normalization_methods$PoissonSeq(GSE40562_eset,get_subject_list(GSE40562$source_name_ch1,"normal")),
     TMM_R1 = normalization_methods$TMM(GSE40562_eset),
-    RPKM_R1 = normalization_methods$RPKM(GSE40562_eset))
+    RPKM_R1 = normalization_methods$RPKM(GSE40562_eset),check = FALSE)
 jpeg("GSE40562.jpeg")
 autoplot(analysis_GSE40562)
 dev.off()
@@ -170,7 +170,7 @@ analysis_GSE98582 = mark(
     DESeq2_R2 = normalization_methods$DESeq2(GSE98582_eset),
     PoissonSeq_R2 = normalization_methods$PoissonSeq(GSE98582_eset,get_subject_list(GSE98582$characteristics_ch1.2,"Control")),
     TMM_R2 = normalization_methods$TMM(GSE98582_eset),
-    RPKM_R2 = normalization_methods$RPKM(GSE98582_eset))
+    RPKM_R2 = normalization_methods$RPKM(GSE98582_eset),check = FALSE)
 jpeg("GSE98582.jpeg")
 autoplot(analysis_GSE98582)
 dev.off()
