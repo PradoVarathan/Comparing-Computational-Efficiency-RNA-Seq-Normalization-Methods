@@ -1,0 +1,41 @@
+DESeq2 PsuedoCode:
+
+Input: Count Matrix with n rows (genes/transcripts) and m columns (subjects)
+Output : Normalizaed Count Matrix with n rows and m columns
+
+PsudeoCode:
+Count_Matrix = expression matrix of dimensions n*m
+size_factors = list of size m for each subject
+multiplicative_factor = list of size n for each transcript
+
+FOR subject_column in columns of Count_Matrix:
+	multiplicative_factor = multiplicative_factor*subject_column
+
+multiplicative_factor = multiplicative_factor^(1/m)
+Temporary_Count_Matrix = Count_Matrix/multiplicative_factor4
+median_list = empty list of m values
+FOR subject_column in columns of Temporary_Count_Matrix:
+	median_list = c(median_list, MEDIAN(Temporary_Count_Matrix[,subject_column]))
+	Temporary_Count_Matrix[,subject_column] = Temporary_Count_Matrix[,subject_column]/median_list[subject_column]
+
+RETURN Temporary_Count_Matrix
+
+
+RPKM Psuedocode:
+(Reads per kilo base per million mapped reads)
+
+Input: Count Matrix with n rows (genes/transcripts) and m columns (subjects),
+       A matrix of lengths in base pair,number of matched genome transcripts of all n transcripts
+Output : Normalizaed Count Matrix with n rows and m columns
+
+PsuedoCode:
+Count_Matrix = expression matrix of dimensions n*m
+length_matrix = list of size n*2 for each transcript length
+total_length = SUM(all lengths in length_list)
+Temporary_Count_Matrix = Count_Matrix
+
+FOR transcript in rows of Temporary_Count_Matrix:
+	FOR subject in columns of Temporary_Count_Matrix:
+		Temporary_Count_Matrix[transcript,subject] = ((number of matched genome transcripts for transcript from length_matrix)*(10^3)*(10*6))/
+							      ((total_length)*(length of gene in base pair for transcript from length_matrix))
+RETURN Temporary_Count_Matrix
