@@ -7,13 +7,10 @@ library(PoissonSeq)
 library(ggplot2)
 library(RColorBrewer)
 library(ggrepel)
-library(clusterProfiler)
-library(DOSE)
 library(tidyverse)
 library(dplyr)
 library(PROPER)
 library(bench)
-library(pheatmap)
 
 # Preparing the GEO data for analysis - Real Data
 GSE40562 = getGEO("GSE40562")[[1]]
@@ -94,6 +91,8 @@ analysis_DESeq2 = mark(
   DESeq2_data7 = normalization_methods$DESeq2(simulation_datasets$data7$counts),
   DESeq2_data8 = normalization_methods$DESeq2(simulation_datasets$data8$counts),
   DESeq2_data9 = normalization_methods$DESeq2(simulation_datasets$data9$counts),check = FALSE)
+analysis_DESeq2$Method = "DESeq2"
+analysis_DESeq2$Dataset = c("Data1","Data2","Data3","Data4","Data5","Data6","Data7","Data8","Data9")
 jpeg("DESeq2_Autoplot.jpeg")
 autoplot(analysis_DESeq2,type = "beeswarm")
 dev.off()
@@ -109,6 +108,8 @@ analysis_PoissonSeq = mark(
   PoissonSeq_data7 = normalization_methods$PoissonSeq(simulation_datasets$data7$counts,simulation_datasets$data7$designs),
   PoissonSeq_data8 = normalization_methods$PoissonSeq(simulation_datasets$data8$counts,simulation_datasets$data8$designs),
   PoissonSeq_data9 = normalization_methods$PoissonSeq(simulation_datasets$data9$counts,simulation_datasets$data9$designs),check = FALSE)
+analysis_PoissonSeq$Method = "PoissonSeq"
+analysis_PoissonSeq$Dataset = c("Data1","Data2","Data3","Data4","Data5","Data6","Data7","Data8","Data9")
 jpeg("PoissonSeq_Autoplot.jpeg")
 autoplot(analysis_PoissonSeq)
 dev.off()
@@ -124,6 +125,8 @@ analysis_TMM = mark(
   TMM_data7 = normalization_methods$TMM(simulation_datasets$data7$counts),
   TMM_data8 = normalization_methods$TMM(simulation_datasets$data8$counts),
   TMM_data9 = normalization_methods$TMM(simulation_datasets$data9$counts),check = FALSE)
+analysis_TMM$Method = "TMM"
+analysis_TMM$Dataset = c("Data1","Data2","Data3","Data4","Data5","Data6","Data7","Data8","Data9")
 jpeg("TMM_Autoplot.jpeg")
 autoplot(analysis_TMM)
 dev.off()
@@ -140,10 +143,33 @@ analysis_RPKM = mark(
   RPKM_data7 = normalization_methods$RPKM(simulation_datasets$data7$counts),
   RPKM_data8 = normalization_methods$RPKM(simulation_datasets$data8$counts),
   RPKM_data9 = normalization_methods$RPKM(simulation_datasets$data9$counts),check = FALSE)
+analysis_RPKM$Method = "RPKM"
+analysis_RPKM$Dataset = c("Data1","Data2","Data3","Data4","Data5","Data6","Data7","Data8","Data9")
 jpeg("RPKM_Autoplot.jpeg")
 autoplot(analysis_RPKM)
 dev.off()
 write.table(analysis_RPKM[,1:9],"RPKM_Memory_Time_Analysis.txt",quote=F,row.names=F)
+
+data = rbind(analysis_DESeq2,analysis_PoissonSeq,analysis_RPKM,analysis_TMM)
+
+ggplot(data, aes(fill=Dataset, y=median, x=Dataset)) + 
+  geom_bar(position="dodge", stat="identity") +
+  scale_fill_viridis(discrete = T, option = "E") +
+  ggtitle("Studying 4 normalization methods Median time") +
+  facet_wrap(~Method) +
+  theme_ipsum() +
+  theme(legend.position="none") +
+  xlab("") + ylab("Median Time")
+
+ggplot(data, aes(fill=Dataset, y=mem_alloc, x=Dataset)) + 
+  geom_bar(position="dodge", stat="identity") +
+  scale_fill_viridis(discrete = T, option = "E") +
+  ggtitle("Studying 4 normalization methods Memory Usage") +
+  facet_wrap(~Method) +
+  theme_ipsum() +
+  theme(legend.position="none") +
+  xlab("") + ylab("Allocated Memory")
+
 
 # Running the real data
 
@@ -152,6 +178,7 @@ analysis_GSE40562 = mark(
   PoissonSeq_R1 = normalization_methods$PoissonSeq(GSE40562_eset,get_subject_list(GSE40562$source_name_ch1,"normal")),
   TMM_R1 = normalization_methods$TMM(GSE40562_eset),
   RPKM_R1 = normalization_methods$RPKM(GSE40562_eset),check = FALSE)
+
 jpeg("GSE40562.jpeg")
 autoplot(analysis_GSE40562)
 dev.off()
@@ -161,6 +188,9 @@ PoissonSeq_R1 = normalization_methods$PoissonSeq(GSE40562_eset,get_subject_list(
 TMM_R1 = normalization_methods$TMM(GSE40562_eset)
 RPKM_R1 = normalization_methods$RPKM(GSE40562_eset)
 Raw_R1 = GSE40562_eset
+analysis_GSE40562$Method = c("DESeq2","PoissonSeq","TMM","RPKM")
+analysis_GSE40562$Dataset = "GSE40562"
+
 
 GSE98582_eset[is.na(GSE98582_eset)] = 0
 analysis_GSE98582 = mark(
@@ -177,6 +207,29 @@ PoissonSeq_R2 = normalization_methods$PoissonSeq(GSE98582_eset,get_subject_list(
 TMM_R2 = normalization_methods$TMM(GSE98582_eset)
 RPKM_R2 = normalization_methods$RPKM(GSE98582_eset)
 Raw_R2 = GSE98582_eset
+analysis_GSE98582$Method = c("DESeq2","PoissonSeq","TMM","RPKM")
+analysis_GSE98582$Dataset = "GSE98582"
+
+data2 = rbind(analysis_GSE40562,analysis_GSE98582)
+
+ggplot(data2, aes(fill=Dataset, y=median, x=Dataset)) + 
+  geom_bar(position="dodge", stat="identity") +
+  scale_fill_viridis(discrete = T, option = "E") +
+  ggtitle("Studying 4 normalization methods Median time") +
+  facet_wrap(~Method) +
+  theme_ipsum() +
+  theme(legend.position="none") +
+  xlab("") + ylab("Median Time")
+
+ggplot(data2, aes(fill=Dataset, y=mem_alloc, x=Dataset)) + 
+  geom_bar(position="dodge", stat="identity") +
+  scale_fill_viridis(discrete = T, option = "E") +
+  ggtitle("Studying 4 normalization methods Memory Usage") +
+  facet_wrap(~Method) +
+  theme_ipsum() +
+  theme(legend.position="none") +
+  xlab("") + ylab("Allocated Memory")
+
 
 # Comparing the post normalization count matrixes
 # Boxplots
@@ -189,32 +242,14 @@ boxplot(log2(RPKM_R1))
 boxplot(log2(Raw_R1))
 dev.off()
 
-jpeg("GSE98582_BoxPlot.jpeg")
-par(mfrow=c(2,3))
-boxplot(log2(DESeq2_R2))
-boxplot(log2(PoissonSeq_R2))
-boxplot(log2(TMM_R2))
-boxplot(log2(RPKM_R2))
-boxplot(log2(Raw_R2))
-dev.off()
+# jpeg("GSE98582_BoxPlot.jpeg")
+# par(mfrow=c(2,3))
+# boxplot(log2(DESeq2_R2))
+# boxplot(log2(PoissonSeq_R2))
+# boxplot(log2(TMM_R2))
+# boxplot(log2(RPKM_R2))
+# boxplot(log2(Raw_R2))
+# dev.off()
 
-# Pheatmaps
-jpeg("GSE40562_PheatMaps.jpeg")
-par(mfrow=c(2,3))
-pheatmap(log2(DESeq2_R1))
-pheatmap(log2(PoissonSeq_R1))
-pheatmap(log2(TMM_R1))
-pheatmap(log2(RPKM_R1))
-pheatmap(log2(Raw_R1))
-dev.off()
-
-jpeg("GSE98582_PheatMap.jpeg")
-par(mfrow=c(2,3))
-pheatmap(log2(DESeq2_R2))
-pheatmap(log2(PoissonSeq_R2))
-pheatmap(log2(TMM_R2))
-pheatmap(log2(RPKM_R2))
-pheatmap(log2(Raw_R2))
-dev.off()
 
 print("Analysis Completed")
